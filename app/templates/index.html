@@ -4,14 +4,14 @@
 <section class="hero-panel">
     <div class="hero-copy">
         <p class="section-tag">Experiencia de lectura</p>
-        <h2>Tu biblioteca digital con navegación bidireccional</h2>
+        <h2>Tu biblioteca digital con navegacion bidireccional</h2>
         <p>
-            Administra libros, muévete entre ellos como en una app de lectura moderna
-            y visualiza la colección desde el inicio o desde el final usando una lista doblemente enlazada.
+            Administra libros, muevete entre ellos como en una app de lectura moderna
+            y visualiza la coleccion desde el inicio o desde el final usando una lista doblemente enlazada.
         </p>
         <div class="hero-actions">
             <a class="button button-primary" href="{{ url_for('library.add_book') }}">Agregar nuevo libro</a>
-            <a class="button button-secondary" href="#collection">Ver colección</a>
+            <a class="button button-secondary" href="#collection">Ver coleccion</a>
         </div>
     </div>
     <div class="hero-card">
@@ -37,7 +37,7 @@
 <section class="panel current-panel">
     <div class="panel-heading">
         <div>
-            <p class="section-tag">Navegación</p>
+            <p class="section-tag">Navegacion</p>
             <h3>Libro actual</h3>
         </div>
         <div class="count-pill">Total: {{ book_count }}</div>
@@ -67,7 +67,7 @@
     </div>
     {% else %}
     <div class="empty-card">
-        <p>No hay un libro actual. Agrega el primero para comenzar la navegación.</p>
+        <p>No hay un libro actual. Agrega el primero para comenzar la navegacion.</p>
     </div>
     {% endif %}
 
@@ -82,7 +82,7 @@
     <section class="panel form-panel">
         <div class="panel-heading">
             <div>
-                <p class="section-tag">Gestión</p>
+                <p class="section-tag">Gestion</p>
                 <h3>Formulario principal</h3>
             </div>
         </div>
@@ -91,15 +91,15 @@
             <div class="form-grid">
                 <label>
                     <span>Title</span>
-                    <input type="text" name="title" placeholder="Ej. Cien años de soledad" required>
+                    <input type="text" name="title" placeholder="Ej. Cien anos de soledad" required>
                 </label>
                 <label>
                     <span>Author</span>
-                    <input type="text" name="author" placeholder="Gabriel García Márquez" required>
+                    <input type="text" name="author" placeholder="Gabriel Garcia Marquez" required>
                 </label>
                 <label>
                     <span>Genre</span>
-                    <input type="text" name="genre" placeholder="Realismo mágico" required>
+                    <input type="text" name="genre" placeholder="Realismo magico" required>
                 </label>
                 <label>
                     <span>Year</span>
@@ -129,7 +129,7 @@
         <form class="inline-form" method="post" action="{{ url_for('library.insert_book') }}">
             <div class="inline-heading">
                 <h4>Insert position</h4>
-                <p>Usa una posición basada en índice empezando desde 0.</p>
+                <p>Usa una posicion basada en indice empezando desde 0.</p>
             </div>
             <div class="form-grid">
                 <label>
@@ -174,7 +174,7 @@
     <section class="panel utility-panel">
         <div class="panel-heading">
             <div>
-                <p class="section-tag">Acciones rápidas</p>
+                <p class="section-tag">Acciones rapidas</p>
                 <h3>Eliminar y buscar</h3>
             </div>
         </div>
@@ -182,7 +182,7 @@
         <form class="inline-form" method="post" action="{{ url_for('library.delete_book') }}">
             <div class="inline-heading">
                 <h4>Delete</h4>
-                <p>Elimina por ID o por título exacto.</p>
+                <p>Elimina por ID o por titulo exacto.</p>
             </div>
             <label>
                 <span>Delete by</span>
@@ -202,14 +202,14 @@
             <button class="button button-warn" type="submit">Delete</button>
         </form>
 
-        <form class="inline-form" method="get" action="{{ url_for('library.search') }}">
+        <form class="inline-form" method="post" action="{{ url_for('library.search') }}">
             <div class="inline-heading">
                 <h4>Search</h4>
-                <p>Búsqueda flexible por título, autor, género, estado, año o ID.</p>
+                <p>Busqueda flexible por titulo, autor, genero, estado, ano o ID.</p>
             </div>
             <label>
                 <span>Search</span>
-                <input type="text" name="query" value="{{ search_query or '' }}" placeholder="Ej. novela, Márquez, Finished">
+                <input type="text" name="query" value="{{ search_query or '' }}" placeholder="Ej. novela, Marquez, Finished">
             </label>
             <button class="button button-primary" type="submit">Search</button>
         </form>
@@ -235,7 +235,7 @@
                 </div>
             {% else %}
                 <div class="empty-card small">
-                    <p>Usa el buscador para filtrar libros en tu colección.</p>
+                    <p>Usa el buscador para filtrar libros en tu coleccion.</p>
                 </div>
             {% endif %}
         </div>
@@ -245,7 +245,7 @@
 <section id="collection" class="panel collection-panel">
     <div class="panel-heading">
         <div>
-            <p class="section-tag">Colección</p>
+            <p class="section-tag">Coleccion</p>
             <h3>Vista de recorridos</h3>
         </div>
     </div>
