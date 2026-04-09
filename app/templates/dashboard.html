@@ -1,0 +1,116 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section>
+    <h2>Library Dashboard</h2>
+    <p><strong>Total books:</strong> {{ book_count }}</p>
+    {% if current_book %}
+        <p><strong>Current book:</strong> {{ current_book.title }} by {{ current_book.author }}</p>
+    {% else %}
+        <p>No current book selected yet.</p>
+    {% endif %}
+</section>
+
+<div class="grid">
+    <section>
+        <h3>Add Book</h3>
+        <form method="post" action="{{ url_for('library.add_book') }}">
+            <input type="text" name="title" placeholder="Title" required>
+            <input type="text" name="author" placeholder="Author" required>
+            <input type="text" name="genre" placeholder="Genre" required>
+            <input type="number" name="year" placeholder="Year" required>
+            <select name="reading_status" required>
+                <option value="Pending">Pending</option>
+                <option value="Reading">Reading</option>
+                <option value="Finished">Finished</option>
+            </select>
+            <input type="number" name="progress" placeholder="Progress 0-100" min="0" max="100" required>
+            <select name="placement">
+                <option value="end">Add at end</option>
+                <option value="start">Add at start</option>
+            </select>
+            <button type="submit">Save Book</button>
+        </form>
+    </section>
+
+    <section>
+        <h3>Insert at Position</h3>
+        <form method="post" action="{{ url_for('library.insert_book') }}">
+            <input type="number" name="position" placeholder="Position (0-based)" min="0" required>
+            <input type="text" name="title" placeholder="Title" required>
+            <input type="text" name="author" placeholder="Author" required>
+            <input type="text" name="genre" placeholder="Genre" required>
+            <input type="number" name="year" placeholder="Year" required>
+            <select name="reading_status" required>
+                <option value="Pending">Pending</option>
+                <option value="Reading">Reading</option>
+                <option value="Finished">Finished</option>
+            </select>
+            <input type="number" name="progress" placeholder="Progress 0-100" min="0" max="100" required>
+            <button type="submit">Insert Book</button>
+        </form>
+    </section>
+
+    <section>
+        <h3>Delete Book</h3>
+        <form method="post" action="{{ url_for('library.delete_book') }}">
+            <select name="delete_type">
+                <option value="id">Delete by ID</option>
+                <option value="title">Delete by Title</option>
+            </select>
+            <input type="number" name="id" placeholder="Book ID">
+            <input type="text" name="title" placeholder="Book Title">
+            <button type="submit">Delete</button>
+        </form>
+    </section>
+
+    <section>
+        <h3>Navigate</h3>
+        <form method="post" action="{{ url_for('library.navigate') }}">
+            <button type="submit" name="direction" value="previous">Previous</button>
+            <button type="submit" name="direction" value="next">Next</button>
+        </form>
+    </section>
+
+    <section>
+        <h3>Search</h3>
+        <form method="get" action="{{ url_for('library.search') }}">
+            <input type="text" name="query" placeholder="Search by title, author, genre..." value="{{ search_query or '' }}">
+            <button type="submit">Search</button>
+        </form>
+        {% if search_results is not none %}
+            <ul>
+                {% for book in search_results %}
+                    <li>#{{ book.id }} - {{ book.title }} by {{ book.author }}</li>
+                {% else %}
+                    <li>No results to display.</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+    </section>
+ </div>
+
+<div class="grid">
+    <section>
+        <h3>Forward Traversal</h3>
+        <ul>
+            {% for book in books_forward %}
+                <li>#{{ book.id }} - {{ book.title }} ({{ book.reading_status }}, {{ book.progress }}%)</li>
+            {% else %}
+                <li>No books in the library.</li>
+            {% endfor %}
+        </ul>
+    </section>
+
+    <section>
+        <h3>Backward Traversal</h3>
+        <ul>
+            {% for book in books_backward %}
+                <li>#{{ book.id }} - {{ book.title }} ({{ book.reading_status }}, {{ book.progress }}%)</li>
+            {% else %}
+                <li>No books in the library.</li>
+            {% endfor %}
+        </ul>
+    </section>
+</div>
+{% endblock %}
