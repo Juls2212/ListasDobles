@@ -45,7 +45,10 @@
 
     {% if current_book %}
     <div class="current-book-card">
-        <div class="book-badge">#{{ current_book.id }}</div>
+        <div class="book-badge-stack">
+            <div class="book-badge">#{{ current_book.id }}</div>
+            <div class="current-ribbon">Now Reading</div>
+        </div>
         <div class="book-main">
             <h4>{{ current_book.title }}</h4>
             <p class="book-author">{{ current_book.author }}</p>
@@ -224,6 +227,7 @@
                             <span class="book-id">#{{ book.id }}</span>
                             <span class="status-tag">{{ book.reading_status }}</span>
                         </div>
+                        <div class="card-spine"></div>
                         <h5>{{ book.title }}</h5>
                         <p>{{ book.author }}</p>
                     </article>
@@ -256,13 +260,14 @@
                 <h4>List forward</h4>
                 <p>Desde la cabeza hasta la cola.</p>
             </div>
-            <div class="book-list">
+            <div class="book-list route-list">
                 {% for book in books_forward %}
                 <article class="book-card">
                     <div class="book-card-head">
                         <span class="book-id">#{{ book.id }}</span>
                         <span class="status-tag">{{ book.reading_status }}</span>
                     </div>
+                    <div class="card-spine"></div>
                     <h5>{{ book.title }}</h5>
                     <p class="book-author">{{ book.author }}</p>
                     <div class="book-meta">
@@ -286,13 +291,14 @@
                 <h4>List backward</h4>
                 <p>Desde la cola hasta la cabeza.</p>
             </div>
-            <div class="book-list">
+            <div class="book-list route-list">
                 {% for book in books_backward %}
                 <article class="book-card">
                     <div class="book-card-head">
                         <span class="book-id">#{{ book.id }}</span>
                         <span class="status-tag">{{ book.reading_status }}</span>
                     </div>
+                    <div class="card-spine"></div>
                     <h5>{{ book.title }}</h5>
                     <p class="book-author">{{ book.author }}</p>
                     <div class="book-meta">

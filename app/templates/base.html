@@ -13,14 +13,19 @@
     <div class="page-shell">
         <header class="site-header">
             <div class="brand-block">
-                <p class="eyebrow">Colección personal | Flask + Doubly Linked List</p>
+                <p class="eyebrow">Coleccion personal | Flask + Doubly Linked List</p>
                 <h1>Leas lo que Leas</h1>
-                <p class="subtitle">Librería Digital Sanboruns</p>
+                <p class="subtitle">Libreria Digital Sanboruns</p>
+            </div>
+            <div class="header-accent" aria-hidden="true">
+                <span class="accent-book accent-book-tall"></span>
+                <span class="accent-book accent-book-mid"></span>
+                <span class="accent-book accent-book-wide"></span>
             </div>
             <nav class="site-nav">
                 <a href="{{ url_for('library.home') }}">Inicio</a>
                 <a href="{{ url_for('library.add_book') }}">Agregar libro</a>
-                <a href="#collection">Colección</a>
+                <a href="#collection">Coleccion</a>
             </nav>
         </header>
 
@@ -34,7 +39,7 @@
                     </div>
                 {% endif %}
             {% endwith %}
-        {% block content %}{% endblock %}
+            {% block content %}{% endblock %}
         </main>
     </div>
 </body>
