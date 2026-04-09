@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from app.models.book import Book
 from app.structures.node import Node
+from app.utils.exceptions import BookNotFoundError, EmptyLibraryError, NavigationError
 
 
 class DoublyLinkedList:
@@ -17,7 +18,7 @@ class DoublyLinkedList:
 
     def is_empty(self) -> bool:
         """Return True when the library has no books."""
-        return self.head is None
+        return self.size == 0
 
     def count(self) -> int:
         """Return the number of stored books."""
@@ -28,9 +29,7 @@ class DoublyLinkedList:
         new_node = Node(book)
 
         if self.is_empty():
-            self.head = new_node
-            self.tail = new_node
-            self.current = new_node
+            self._set_first_node(new_node)
         else:
             assert self.tail is not None
             self.tail.next = new_node
@@ -45,9 +44,7 @@ class DoublyLinkedList:
         new_node = Node(book)
 
         if self.is_empty():
-            self.head = new_node
-            self.tail = new_node
-            self.current = new_node
+            self._set_first_node(new_node)
         else:
             assert self.head is not None
             new_node.next = self.head
@@ -83,41 +80,53 @@ class DoublyLinkedList:
 
     def remove_by_id(self, book_id: int) -> Book | None:
         """Remove the first book with the provided ID."""
+        return self._unlink_node(self.find_node_by_id(book_id))
+
+    def remove_by_title(self, title: str) -> Book | None:
+        """Remove the first book whose title matches the given text."""
+        return self._unlink_node(self.find_node_by_title(title))
+
+    def find_node_by_id(self, book_id: int) -> Node:
+        """Return the first node with the matching book ID."""
+        self._ensure_not_empty()
         node = self.head
 
         while node is not None:
             if node.book.id == book_id:
-                return self._unlink_node(node)
+                return node
             node = node.next
 
-        return None
+        raise BookNotFoundError(f"No book with ID {book_id} was found.")
 
-    def remove_by_title(self, title: str) -> Book | None:
-        """Remove the first book whose title matches the given text."""
+    def find_node_by_title(self, title: str) -> Node:
+        """Return the first node with a case-insensitive exact title match."""
+        self._ensure_not_empty()
         normalized_title = title.strip().lower()
         node = self.head
 
         while node is not None:
             if node.book.title.strip().lower() == normalized_title:
-                return self._unlink_node(node)
+                return node
             node = node.next
 
-        return None
+        raise BookNotFoundError(f'No book with title "{title}" was found.')
 
     def move_next(self) -> Book | None:
         """Move the current pointer forward and return the current book."""
-        if self.current is None:
-            return None
-        if self.current.next is not None:
-            self.current = self.current.next
+        self._ensure_not_empty()
+        assert self.current is not None
+        if self.current.next is None:
+            raise NavigationError("Already at the last book in the library.")
+        self.current = self.current.next
         return self.current.book
 
     def move_previous(self) -> Book | None:
         """Move the current pointer backward and return the current book."""
-        if self.current is None:
-            return None
-        if self.current.prev is not None:
-            self.current = self.current.prev
+        self._ensure_not_empty()
+        assert self.current is not None
+        if self.current.prev is None:
+            raise NavigationError("Already at the first book in the library.")
+        self.current = self.current.prev
         return self.current.book
 
     def get_current(self) -> Book | None:
@@ -151,10 +160,14 @@ class DoublyLinkedList:
     def search(self, query: str) -> list[Book]:
         """Return every book that matches the provided query."""
         matches: list[Book] = []
+        normalized_query = query.strip().lower()
+        if not normalized_query:
+            return matches
+
         node = self.head
 
         while node is not None:
-            if node.book.matches_query(query):
+            if node.book.matches_query(normalized_query):
                 matches.append(node.book)
             node = node.next
 
@@ -209,5 +222,21 @@ class DoublyLinkedList:
             self.head = None
             self.tail = None
             self.current = None
+        else:
+            assert self.head is not None
+            assert self.tail is not None
+            self.head.prev = None
+            self.tail.next = None
 
         return node.book
+
+    def _set_first_node(self, node: Node) -> None:
+        """Initialize the list when inserting the first node."""
+        self.head = node
+        self.tail = node
+        self.current = node
+
+    def _ensure_not_empty(self) -> None:
+        """Raise an error when the list is empty."""
+        if self.is_empty():
+            raise EmptyLibraryError("The library is empty.")

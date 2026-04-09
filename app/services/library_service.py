@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from app.models.book import Book
 from app.structures.doubly_linked_list import DoublyLinkedList
+from app.utils.exceptions import ValidationError
 
 
 class LibraryService:
@@ -27,17 +28,21 @@ class LibraryService:
 
     def insert_book_at(self, position: int, data: dict) -> Book:
         """Create a book and insert it at a specific zero-based position."""
+        if position < 0:
+            raise ValidationError("Position must be 0 or greater.")
         book = self._build_book(data)
         return self.library.insert_book_at(position, book)
 
     def remove_by_id(self, book_id: int) -> Book | None:
         """Remove a book by its unique ID."""
+        if book_id <= 0:
+            raise ValidationError("Book ID must be a positive number.")
         return self.library.remove_by_id(book_id)
 
     def remove_by_title(self, title: str) -> Book | None:
         """Remove a book by exact title match."""
         if not title or not title.strip():
-            raise ValueError("Title is required.")
+            raise ValidationError("Title is required.")
         return self.library.remove_by_title(title)
 
     def move_next(self) -> Book | None:
@@ -87,28 +92,30 @@ class LibraryService:
         status = data.get("reading_status", "").strip().title()
 
         if not title:
-            raise ValueError("Title is required.")
+            raise ValidationError("Title is required.")
         if not author:
-            raise ValueError("Author is required.")
+            raise ValidationError("Author is required.")
         if not genre:
-            raise ValueError("Genre is required.")
+            raise ValidationError("Genre is required.")
         if status not in self.ALLOWED_STATUSES:
-            raise ValueError("Reading status must be Pending, Reading, or Finished.")
+            raise ValidationError(
+                "Reading status must be Pending, Reading, or Finished."
+            )
 
         try:
             year = int(data.get("year", 0))
         except (TypeError, ValueError) as error:
-            raise ValueError("Year must be a valid number.") from error
+            raise ValidationError("Year must be a valid number.") from error
 
         try:
             progress = int(data.get("progress", 0))
         except (TypeError, ValueError) as error:
-            raise ValueError("Progress must be a valid number.") from error
+            raise ValidationError("Progress must be a valid number.") from error
 
         if year <= 0:
-            raise ValueError("Year must be greater than 0.")
-        if progress < 0 or progress > 100:
-            raise ValueError("Progress must be between 0 and 100.")
+            raise ValidationError("Year must be greater than 0.")
+        if not 0 <= progress <= 100:
+            raise ValidationError("Progress must be between 0 and 100.")
 
         book = Book(
             book_id=self._next_id,

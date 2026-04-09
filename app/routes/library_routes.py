@@ -5,6 +5,12 @@ from __future__ import annotations
 from flask import Blueprint, flash, redirect, render_template, request, url_for
 
 from app.services.library_service import LibraryService
+from app.utils.exceptions import (
+    BookNotFoundError,
+    EmptyLibraryError,
+    NavigationError,
+    ValidationError,
+)
 
 
 library_blueprint = Blueprint("library", __name__)
@@ -28,10 +34,12 @@ def add_book():
         if placement == "start":
             library_service.prepend_book(request.form)
             flash("Book added at the start of the library.", "success")
-        else:
+        elif placement == "end":
             library_service.append_book(request.form)
             flash("Book added at the end of the library.", "success")
-    except ValueError as error:
+        else:
+            raise ValidationError("Placement must be either start or end.")
+    except ValidationError as error:
         flash(str(error), "error")
 
     return redirect(url_for("library.home"))
@@ -41,10 +49,13 @@ def add_book():
 def insert_book():
     """Insert a book at a specific zero-based position."""
     try:
-        position = int(request.form.get("position", "0"))
+        raw_position = request.form.get("position", "").strip()
+        if not raw_position:
+            raise ValidationError("Position is required.")
+        position = int(raw_position)
         library_service.insert_book_at(position, request.form)
         flash(f"Book inserted at position {position}.", "success")
-    except (ValueError, TypeError) as error:
+    except (ValidationError, TypeError) as error:
         flash(str(error), "error")
     except IndexError as error:
         flash(str(error), "error")
@@ -61,15 +72,17 @@ def delete_book():
         if delete_type == "title":
             title = request.form.get("title", "")
             removed = library_service.remove_by_title(title)
-        else:
-            book_id = int(request.form.get("id", "0"))
+        elif delete_type == "id":
+            raw_book_id = request.form.get("id", "").strip()
+            if not raw_book_id:
+                raise ValidationError("Book ID is required.")
+            book_id = int(raw_book_id)
             removed = library_service.remove_by_id(book_id)
-
-        if removed is None:
-            flash("No matching book was found.", "warning")
         else:
-            flash(f"Removed book: {removed.title}.", "success")
-    except (ValueError, TypeError) as error:
+            raise ValidationError("Delete type must be id or title.")
+
+        flash(f"Removed book: {removed.title}.", "success")
+    except (ValidationError, TypeError, EmptyLibraryError, BookNotFoundError) as error:
         flash(str(error), "error")
 
     return redirect(url_for("library.home"))
@@ -80,20 +93,17 @@ def navigate():
     """Move the current pointer forward or backward."""
     direction = request.form.get("direction", "").strip().lower()
 
-    if direction == "next":
-        book = library_service.move_next()
-        flash(
-            f"Current book: {book.title}." if book else "The library is empty.",
-            "info",
-        )
-    elif direction == "previous":
-        book = library_service.move_previous()
-        flash(
-            f"Current book: {book.title}." if book else "The library is empty.",
-            "info",
-        )
-    else:
-        flash("Invalid navigation direction.", "error")
+    try:
+        if direction == "next":
+            book = library_service.move_next()
+        elif direction == "previous":
+            book = library_service.move_previous()
+        else:
+            raise ValidationError("Invalid navigation direction.")
+
+        flash(f"Current book: {book.title}.", "info")
+    except (ValidationError, EmptyLibraryError, NavigationError) as error:
+        flash(str(error), "error")
 
     return redirect(url_for("library.home"))
 
@@ -108,5 +118,7 @@ def search():
 
     if query and not context["search_results"]:
         flash("No books matched the search.", "warning")
+    elif query:
+        flash(f'Found {len(context["search_results"])} matching book(s).', "info")
 
     return render_template("dashboard.html", **context)

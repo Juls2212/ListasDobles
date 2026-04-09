@@ -36,12 +36,18 @@ class Book:
 
     def matches_query(self, query: str) -> bool:
         """Check whether the book matches a simple text search."""
+        if query is None:
+            return False
+
         normalized_query = query.strip().lower()
+        if not normalized_query:
+            return False
+
         return (
-            normalized_query in str(self.id).lower()
+            normalized_query in str(self.id)
             or normalized_query in self.title.lower()
             or normalized_query in self.author.lower()
             or normalized_query in self.genre.lower()
             or normalized_query in self.reading_status.lower()
-            or normalized_query in str(self.year).lower()
+            or normalized_query in str(self.year)
         )
