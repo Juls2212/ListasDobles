@@ -1,0 +1,315 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="hero-panel">
+    <div class="hero-copy">
+        <p class="section-tag">Experiencia de lectura</p>
+        <h2>Tu biblioteca digital con navegación bidireccional</h2>
+        <p>
+            Administra libros, muévete entre ellos como en una app de lectura moderna
+            y visualiza la colección desde el inicio o desde el final usando una lista doblemente enlazada.
+        </p>
+        <div class="hero-actions">
+            <a class="button button-primary" href="{{ url_for('library.add_book') }}">Agregar nuevo libro</a>
+            <a class="button button-secondary" href="#collection">Ver colección</a>
+        </div>
+    </div>
+    <div class="hero-card">
+        <p class="card-label">Resumen</p>
+        <div class="metric-grid">
+            <div class="metric-item">
+                <span class="metric-value">{{ book_count }}</span>
+                <span class="metric-label">Libros registrados</span>
+            </div>
+            <div class="metric-item">
+                <span class="metric-value">
+                    {% if current_book %}#{{ current_book.id }}{% else %}--{% endif %}
+                </span>
+                <span class="metric-label">Libro actual</span>
+            </div>
+        </div>
+        <div class="shelf-preview">
+            <span></span><span></span><span></span><span></span><span></span>
+        </div>
+    </div>
+</section>
+
+<section class="panel current-panel">
+    <div class="panel-heading">
+        <div>
+            <p class="section-tag">Navegación</p>
+            <h3>Libro actual</h3>
+        </div>
+        <div class="count-pill">Total: {{ book_count }}</div>
+    </div>
+
+    {% if current_book %}
+    <div class="current-book-card">
+        <div class="book-badge">#{{ current_book.id }}</div>
+        <div class="book-main">
+            <h4>{{ current_book.title }}</h4>
+            <p class="book-author">{{ current_book.author }}</p>
+            <div class="book-meta">
+                <span>{{ current_book.genre }}</span>
+                <span>{{ current_book.year }}</span>
+                <span>{{ current_book.reading_status }}</span>
+            </div>
+            <div class="progress-block">
+                <div class="progress-label">
+                    <span>Progreso de lectura</span>
+                    <strong>{{ current_book.progress }}%</strong>
+                </div>
+                <div class="progress-bar">
+                    <span style="width: {{ current_book.progress }}%;"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="empty-card">
+        <p>No hay un libro actual. Agrega el primero para comenzar la navegación.</p>
+    </div>
+    {% endif %}
+
+    <form class="nav-controls" method="post" action="{{ url_for('library.navigate') }}">
+        <button class="button button-secondary" type="submit" name="direction" value="previous">Previous</button>
+        <div class="current-indicator">Current</div>
+        <button class="button button-primary" type="submit" name="direction" value="next">Next</button>
+    </form>
+</section>
+
+<div class="content-grid">
+    <section class="panel form-panel">
+        <div class="panel-heading">
+            <div>
+                <p class="section-tag">Gestión</p>
+                <h3>Formulario principal</h3>
+            </div>
+        </div>
+
+        <form class="book-form" method="post" action="{{ url_for('library.add_book') }}">
+            <div class="form-grid">
+                <label>
+                    <span>Title</span>
+                    <input type="text" name="title" placeholder="Ej. Cien años de soledad" required>
+                </label>
+                <label>
+                    <span>Author</span>
+                    <input type="text" name="author" placeholder="Gabriel García Márquez" required>
+                </label>
+                <label>
+                    <span>Genre</span>
+                    <input type="text" name="genre" placeholder="Realismo mágico" required>
+                </label>
+                <label>
+                    <span>Year</span>
+                    <input type="number" name="year" min="1" placeholder="1967" required>
+                </label>
+                <label>
+                    <span>Status</span>
+                    <select name="reading_status" required>
+                        <option value="Pending">Pending</option>
+                        <option value="Reading">Reading</option>
+                        <option value="Finished">Finished</option>
+                    </select>
+                </label>
+                <label>
+                    <span>Progress</span>
+                    <input type="number" name="progress" min="0" max="100" placeholder="0 - 100" required>
+                </label>
+            </div>
+
+            <div class="button-row">
+                <button class="button button-primary" type="submit" name="placement" value="end">Add (end)</button>
+                <button class="button button-secondary" type="submit" name="placement" value="start">Add (start)</button>
+                <a class="button button-ghost" href="{{ url_for('library.add_book') }}">Open add form</a>
+            </div>
+        </form>
+
+        <form class="inline-form" method="post" action="{{ url_for('library.insert_book') }}">
+            <div class="inline-heading">
+                <h4>Insert position</h4>
+                <p>Usa una posición basada en índice empezando desde 0.</p>
+            </div>
+            <div class="form-grid">
+                <label>
+                    <span>Position</span>
+                    <input type="number" name="position" min="0" placeholder="0" required>
+                </label>
+                <label>
+                    <span>Title</span>
+                    <input type="text" name="title" required>
+                </label>
+                <label>
+                    <span>Author</span>
+                    <input type="text" name="author" required>
+                </label>
+                <label>
+                    <span>Genre</span>
+                    <input type="text" name="genre" required>
+                </label>
+                <label>
+                    <span>Year</span>
+                    <input type="number" name="year" min="1" required>
+                </label>
+                <label>
+                    <span>Status</span>
+                    <select name="reading_status" required>
+                        <option value="Pending">Pending</option>
+                        <option value="Reading">Reading</option>
+                        <option value="Finished">Finished</option>
+                    </select>
+                </label>
+                <label>
+                    <span>Progress</span>
+                    <input type="number" name="progress" min="0" max="100" required>
+                </label>
+            </div>
+            <div class="button-row">
+                <button class="button button-accent" type="submit">Insert position</button>
+            </div>
+        </form>
+    </section>
+
+    <section class="panel utility-panel">
+        <div class="panel-heading">
+            <div>
+                <p class="section-tag">Acciones rápidas</p>
+                <h3>Eliminar y buscar</h3>
+            </div>
+        </div>
+
+        <form class="inline-form" method="post" action="{{ url_for('library.delete_book') }}">
+            <div class="inline-heading">
+                <h4>Delete</h4>
+                <p>Elimina por ID o por título exacto.</p>
+            </div>
+            <label>
+                <span>Delete by</span>
+                <select name="delete_type">
+                    <option value="id">ID</option>
+                    <option value="title">Title</option>
+                </select>
+            </label>
+            <label>
+                <span>ID</span>
+                <input type="number" name="id" min="1" placeholder="Book ID">
+            </label>
+            <label>
+                <span>Title</span>
+                <input type="text" name="title" placeholder="Book title">
+            </label>
+            <button class="button button-warn" type="submit">Delete</button>
+        </form>
+
+        <form class="inline-form" method="get" action="{{ url_for('library.search') }}">
+            <div class="inline-heading">
+                <h4>Search</h4>
+                <p>Búsqueda flexible por título, autor, género, estado, año o ID.</p>
+            </div>
+            <label>
+                <span>Search</span>
+                <input type="text" name="query" value="{{ search_query or '' }}" placeholder="Ej. novela, Márquez, Finished">
+            </label>
+            <button class="button button-primary" type="submit">Search</button>
+        </form>
+
+        <div class="search-results">
+            <h4>Resultados</h4>
+            {% if search_results is not none %}
+                <div class="book-list compact-list">
+                    {% for book in search_results %}
+                    <article class="book-card compact">
+                        <div class="book-card-head">
+                            <span class="book-id">#{{ book.id }}</span>
+                            <span class="status-tag">{{ book.reading_status }}</span>
+                        </div>
+                        <h5>{{ book.title }}</h5>
+                        <p>{{ book.author }}</p>
+                    </article>
+                    {% else %}
+                    <div class="empty-card small">
+                        <p>No hay resultados para mostrar.</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="empty-card small">
+                    <p>Usa el buscador para filtrar libros en tu colección.</p>
+                </div>
+            {% endif %}
+        </div>
+    </section>
+</div>
+
+<section id="collection" class="panel collection-panel">
+    <div class="panel-heading">
+        <div>
+            <p class="section-tag">Colección</p>
+            <h3>Vista de recorridos</h3>
+        </div>
+    </div>
+
+    <div class="collection-grid">
+        <div>
+            <div class="subheading">
+                <h4>List forward</h4>
+                <p>Desde la cabeza hasta la cola.</p>
+            </div>
+            <div class="book-list">
+                {% for book in books_forward %}
+                <article class="book-card">
+                    <div class="book-card-head">
+                        <span class="book-id">#{{ book.id }}</span>
+                        <span class="status-tag">{{ book.reading_status }}</span>
+                    </div>
+                    <h5>{{ book.title }}</h5>
+                    <p class="book-author">{{ book.author }}</p>
+                    <div class="book-meta">
+                        <span>{{ book.genre }}</span>
+                        <span>{{ book.year }}</span>
+                    </div>
+                    <div class="progress-bar slim">
+                        <span style="width: {{ book.progress }}%;"></span>
+                    </div>
+                </article>
+                {% else %}
+                <div class="empty-card">
+                    <p>No hay libros registrados en la vista forward.</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div>
+            <div class="subheading">
+                <h4>List backward</h4>
+                <p>Desde la cola hasta la cabeza.</p>
+            </div>
+            <div class="book-list">
+                {% for book in books_backward %}
+                <article class="book-card">
+                    <div class="book-card-head">
+                        <span class="book-id">#{{ book.id }}</span>
+                        <span class="status-tag">{{ book.reading_status }}</span>
+                    </div>
+                    <h5>{{ book.title }}</h5>
+                    <p class="book-author">{{ book.author }}</p>
+                    <div class="book-meta">
+                        <span>{{ book.genre }}</span>
+                        <span>{{ book.year }}</span>
+                    </div>
+                    <div class="progress-bar slim">
+                        <span style="width: {{ book.progress }}%;"></span>
+                    </div>
+                </article>
+                {% else %}
+                <div class="empty-card">
+                    <p>No hay libros registrados en la vista backward.</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

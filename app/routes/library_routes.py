@@ -22,12 +22,16 @@ def home():
     """Render the main dashboard with the current state of the library."""
     context = library_service.get_dashboard_context()
     context["search_results"] = None
-    return render_template("dashboard.html", **context)
+    context["search_query"] = ""
+    return render_template("index.html", **context)
 
 
-@library_blueprint.route("/add", methods=["POST"])
+@library_blueprint.route("/add", methods=["GET", "POST"])
 def add_book():
     """Add a book to the start or end of the library."""
+    if request.method == "GET":
+        return render_template("add.html")
+
     placement = request.form.get("placement", "end").strip().lower()
 
     try:
@@ -121,4 +125,4 @@ def search():
     elif query:
         flash(f'Found {len(context["search_results"])} matching book(s).', "info")
 
-    return render_template("dashboard.html", **context)
+    return render_template("index.html", **context)

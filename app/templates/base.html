@@ -1,81 +1,41 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Leas lo que Leas - Digital Book Library</title>
-    <style>
-        body {
-            font-family: Georgia, serif;
-            margin: 0;
-            background: #fff7f2;
-            color: #4b2e2a;
-        }
-        header {
-            background: linear-gradient(135deg, #e4572e, #ff8c61);
-            color: white;
-            padding: 24px;
-        }
-        main {
-            padding: 24px;
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-        section {
-            background: white;
-            border-radius: 16px;
-            padding: 16px;
-            margin-bottom: 20px;
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
-        }
-        form {
-            display: grid;
-            gap: 10px;
-            margin-top: 12px;
-        }
-        input, select, button {
-            padding: 10px;
-            border-radius: 10px;
-            border: 1px solid #d7b4a4;
-        }
-        button {
-            background: #d94841;
-            color: white;
-            cursor: pointer;
-        }
-        .grid {
-            display: grid;
-            gap: 20px;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-        }
-        .flash {
-            padding: 10px 12px;
-            border-radius: 10px;
-            margin-bottom: 10px;
-        }
-        .success { background: #ffe5d9; }
-        .error { background: #ffd6d6; }
-        .warning { background: #fff1c9; }
-        .info { background: #ffe9dc; }
-        ul {
-            padding-left: 18px;
-        }
-    </style>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
 </head>
 <body>
-    <header>
-        <h1>Leas lo que Leas</h1>
-        <p>Digital Book Library powered by Flask and a custom doubly linked list</p>
-    </header>
-    <main>
-        {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                {% for category, message in messages %}
-                    <div class="flash {{ category }}">{{ message }}</div>
-                {% endfor %}
-            {% endif %}
-        {% endwith %}
+    <div class="page-shell">
+        <header class="site-header">
+            <div class="brand-block">
+                <p class="eyebrow">Colección personal | Flask + Doubly Linked List</p>
+                <h1>Leas lo que Leas</h1>
+                <p class="subtitle">Librería Digital Sanboruns</p>
+            </div>
+            <nav class="site-nav">
+                <a href="{{ url_for('library.home') }}">Inicio</a>
+                <a href="{{ url_for('library.add_book') }}">Agregar libro</a>
+                <a href="#collection">Colección</a>
+            </nav>
+        </header>
+
+        <main class="main-content">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    <div class="flash-stack">
+                        {% for category, message in messages %}
+                            <div class="flash {{ category }}">{{ message }}</div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            {% endwith %}
         {% block content %}{% endblock %}
-    </main>
+        </main>
+    </div>
 </body>
 </html>
