@@ -2,7 +2,10 @@
 
 from __future__ import annotations
 
+from pathlib import Path
+
 from app.models.book import Book
+from app.persistence.json_repository import JsonLibraryRepository
 from app.structures.doubly_linked_list import DoublyLinkedList
 from app.utils.exceptions import ValidationError
 
@@ -14,44 +17,62 @@ class LibraryService:
 
     def __init__(self) -> None:
         self.library = DoublyLinkedList()
+        self.repository = JsonLibraryRepository(
+            Path(__file__).resolve().parents[2] / "data" / "books.json"
+        )
         self._next_id = 1
+        self.load_data()
 
     def append_book(self, data: dict) -> Book:
         """Create a book and append it to the end of the library."""
         book = self._build_book(data)
-        return self.library.append_book(book)
+        saved_book = self.library.append_book(book)
+        self.save_data()
+        return saved_book
 
     def prepend_book(self, data: dict) -> Book:
         """Create a book and prepend it to the start of the library."""
         book = self._build_book(data)
-        return self.library.prepend_book(book)
+        saved_book = self.library.prepend_book(book)
+        self.save_data()
+        return saved_book
 
     def insert_book_at(self, position: int, data: dict) -> Book:
         """Create a book and insert it at a specific zero-based position."""
         if position < 0:
             raise ValidationError("Position must be 0 or greater.")
         book = self._build_book(data)
-        return self.library.insert_book_at(position, book)
+        saved_book = self.library.insert_book_at(position, book)
+        self.save_data()
+        return saved_book
 
     def remove_by_id(self, book_id: int) -> Book | None:
         """Remove a book by its unique ID."""
         if book_id <= 0:
             raise ValidationError("Book ID must be a positive number.")
-        return self.library.remove_by_id(book_id)
+        removed_book = self.library.remove_by_id(book_id)
+        self.save_data()
+        return removed_book
 
     def remove_by_title(self, title: str) -> Book | None:
         """Remove a book by exact title match."""
         if not title or not title.strip():
             raise ValidationError("Title is required.")
-        return self.library.remove_by_title(title)
+        removed_book = self.library.remove_by_title(title)
+        self.save_data()
+        return removed_book
 
     def move_next(self) -> Book | None:
         """Move the current pointer forward."""
-        return self.library.move_next()
+        current_book = self.library.move_next()
+        self.save_data()
+        return current_book
 
     def move_previous(self) -> Book | None:
         """Move the current pointer backward."""
-        return self.library.move_previous()
+        current_book = self.library.move_previous()
+        self.save_data()
+        return current_book
 
     def get_current(self) -> Book | None:
         """Return the current selected book."""
@@ -83,6 +104,31 @@ class LibraryService:
             "books_backward": self.get_all_backward(),
             "book_count": self.count(),
         }
+
+    def save_data(self) -> None:
+        """Persist the current linked-list state to a JSON file."""
+        current_book = self.get_current()
+        payload = {
+            "books": [book.to_dict() for book in self.get_all_forward()],
+            "current_book_id": current_book.id if current_book is not None else None,
+        }
+        self.repository.save_data(payload)
+
+    def load_data(self) -> None:
+        """Load persisted books and rebuild the doubly linked list."""
+        persisted_data = self.repository.load_data()
+
+        self.library = DoublyLinkedList()
+        highest_id = 0
+
+        for book_data in persisted_data["books"]:
+            book = Book.from_dict(book_data)
+            self.library.append_book(book)
+            if book.id > highest_id:
+                highest_id = book.id
+
+        self.library.set_current_by_id(persisted_data.get("current_book_id"))
+        self._next_id = highest_id + 1
 
     def _build_book(self, data: dict) -> Book:
         """Validate request data and create a Book instance."""

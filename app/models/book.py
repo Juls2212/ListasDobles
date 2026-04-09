@@ -34,6 +34,19 @@ class Book:
             "progress": self.progress,
         }
 
+    @classmethod
+    def from_dict(cls, data: dict) -> "Book":
+        """Build a Book instance from persisted JSON data."""
+        return cls(
+            book_id=int(data["id"]),
+            title=str(data["title"]),
+            author=str(data["author"]),
+            genre=str(data["genre"]),
+            year=int(data["year"]),
+            reading_status=str(data["reading_status"]),
+            progress=int(data["progress"]),
+        )
+
     def matches_query(self, query: str) -> bool:
         """Check whether the book matches a simple text search."""
         if query is None:

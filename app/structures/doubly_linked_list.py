@@ -135,6 +135,21 @@ class DoublyLinkedList:
             return None
         return self.current.book
 
+    def set_current_by_id(self, book_id: int | None) -> None:
+        """Set the current pointer using a stored book ID."""
+        if book_id is None:
+            self.current = self.head
+            return
+
+        node = self.head
+        while node is not None:
+            if node.book.id == book_id:
+                self.current = node
+                return
+            node = node.next
+
+        self.current = self.head
+
     def get_all_forward(self) -> list[Book]:
         """Return all books from head to tail."""
         books: list[Book] = []
